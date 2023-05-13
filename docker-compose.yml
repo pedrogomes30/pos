@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:${APP_PORT}"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - pos-network
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+    volumes:
+      - .:/var/www/html/
+
+  db:
+    image: mysql:latest
+    ports:
+      - "3306:${DB_PORT}"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_USERNAME}
+      - MYSQL_DATABASE=${DB_DATABASE}
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+    environment:
+      - PMA_ARBITRARY=${PMA_ARBITRARY}
+      - PMA_HOST=${PMA_HOST}
+      - PMA_PORT=${PMA_PORT}
+      - MYSQL_ROOT_PASSWORD=${DB_USERNAME}
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:${REDIS_PORT}"
+    networks:
+      - pos-network
+    volumes:
+      - redis_data:/data
+
+
+networks:
+  pos-network:
+
+volumes:
+  dbdata:
+  redis_data:
+
