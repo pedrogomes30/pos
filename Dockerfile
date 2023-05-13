@@ -1,23 +1,22 @@
-FROM php:8.2-fpm
+FROM php:latest
 
-RUN apt-get update && \
-    apt-get install -y \
-        curl \
-        zip \
-        unzip \
-        git \
-        libonig-dev \
-        libxml2-dev \
-        libzip-dev \
-        libpng-dev \
-        libjpeg-dev \
-        libfreetype6-dev
+RUN apt-get update && apt-get upgrade -y
 
-RUN docker-php-ext-install pdo_mysql gd mbstring zip soap curl bcmath
+RUN apt-get install -y nginx
+
+RUN docker-php-ext-install \
+    pdo_mysql \
+    gd \
+    mbstring \
+    zip \
+    soap \
+    curl \
+    bcmath 
+
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN a2enmod rewrite
+# RUN a2enmod rewrite
 
 WORKDIR /var/www/html
 
