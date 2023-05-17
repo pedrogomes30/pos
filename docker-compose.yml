@@ -1,23 +1,16 @@
-version: '3'
-
+version: "3.9"
 services:
-  web:
-    build: .
+  web-octane:
+    # image: urnau/php82-app-2023:octane
+    container_name: web-octane
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.octane
+      args:
+        PHP_VERSION: '8.2.4-bullseye'
     ports:
-      - "8080:${APP_PORT}"
-    depends_on:
-      - db
-      - redis
-    networks:
-      - pos-network
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-    volumes:
-      - .:/var/www/html/
+      - "80:80" #http
+      - "443:443" #https
 
   db:
     image: mysql:latest
@@ -38,21 +31,4 @@ services:
       - PMA_HOST=${PMA_HOST}
       - PMA_PORT=${PMA_PORT}
       - MYSQL_ROOT_PASSWORD=${DB_USERNAME}
-
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:${REDIS_PORT}"
-    networks:
-      - pos-network
-    volumes:
-      - redis_data:/data
-
-
-networks:
-  pos-network:
-
-volumes:
-  dbdata:
-  redis_data:
-
+      
