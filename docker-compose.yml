@@ -2,23 +2,29 @@ version: "3.9"
 services:
   web-octane:
     # image: urnau/php82-app-2023:octane
-    container_name: web-octane
     build:
       context: .
       dockerfile: ./docker/Dockerfile.octane
       args:
         PHP_VERSION: '8.2.4-bullseye'
     ports:
-      - "80:80" #http
-      - "443:443" #https
+      - "80:${APP_PORT_HTTP}" #http
+      - "443:${APP_PORT_HTTPS}" #https
+    networks:
+      - pos-network
+    volumes:
+      - ./Aplication:/var/www/app
+    # user: root:root
 
   db:
     image: mysql:latest
     ports:
       - "3306:${DB_PORT}"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_USERNAME}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
       - MYSQL_DATABASE=${DB_DATABASE}
+    networks:
+      - pos-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -27,8 +33,15 @@ services:
     depends_on:
       - db
     environment:
-      - PMA_ARBITRARY=${PMA_ARBITRARY}
-      - PMA_HOST=${PMA_HOST}
-      - PMA_PORT=${PMA_PORT}
-      - MYSQL_ROOT_PASSWORD=${DB_USERNAME}
-      
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+      - PMA_PORT=3306
+      - MYSQL_ROOT_PASSWORD=secret
+    networks:
+      - pos-network
+
+networks:
+  pos-network:
+
+volumes:
+  dbdata:
